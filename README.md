@@ -146,3 +146,15 @@ npm test
 5. **State Management**:
 
    - In future cases, services for advanced state management may be introduced
+
+## Development Practices
+
+1. **Git Commit Messages**:
+   - Given the focus on fast prototyping and rapid iteration, detailed or structured Git commit messages have not been prioritized at this stage.
+   - This approach allows for quicker development cycles but may be revisited in the future to improve traceability and collaboration if needed.
+2. **Code Refactoring**:
+   - Additional refactoring can improve code readability, maintainability, and reduce duplication.
+   - Areas for potential improvement include:
+     - Simplifying complex methods like `handleOperationInput`.
+     - Enhancing modularity by extracting reusable logic into helper functions or services.
+     - Improving consistency in naming conventions and code structure.
