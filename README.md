@@ -75,7 +75,12 @@ npm test
    - Features like history tracking, scientific functions, or keyboard input are not included but can be added in the future.
 
 4. **User-Friendly Design**:
+
    - The app assumes users will interact with buttons only, and input validation ensures no invalid states.
+
+5. **Responsive Design**:
+   - Since the app is used internally by employees, responsive design is not a primary focus.
+   - However, the app is designed to look acceptable on mobile devices for basic usability.
 
 ---
 
