@@ -98,6 +98,21 @@ export class CalculatorComponent {
           throw new Error('Invalid operation'); // @TODO: handle this error
         }
         break;
+      case CalculatorButton.Delete:
+        if (this.operation() === null) {
+          if (this.numberA() !== null) {
+            //Remove the last digit
+            this.numberA.set(Math.floor(this.numberA()! / 10));
+            this.currentExpression.set(`${this.numberA()}`);
+          }
+        } else {
+          if (this.numberB() !== null) {
+            //Remove the last digit
+            this.numberB.set(Math.floor(this.numberB()! / 10));
+            this.currentExpression.set(`${this.numberB()}`);
+          }
+        }
+        break;
       default:
         throw new Error('Invalid button'); // @TODO: handle this error
     }
@@ -109,7 +124,7 @@ export class CalculatorComponent {
     );
   }
   handleNumberInput(input: string) {
-    //@Todo handle decimals and deletions
+    //@Todo handle decimals
     if (this.operation() === null) {
       this.numberA.set(Number(`${this.numberA() ?? ''}${input}`));
       this.currentExpression.set(`${this.numberA()}`);
