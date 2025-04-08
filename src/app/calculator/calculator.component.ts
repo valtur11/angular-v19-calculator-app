@@ -133,7 +133,6 @@ export class CalculatorComponent {
       this.numberA.set(parseFloat(updatedValue));
     } else {
       // Handle numberB
-      const currentValue = this.currentExpression();
       if (this.isNumberBPlaceholder()) {
         this.currentExpression.set(input === '.' ? '0.' : input);
         this.numberB.set(null);
@@ -149,15 +148,54 @@ export class CalculatorComponent {
     }
   }
 
+  private handleUnaryOperation(
+    operation: CalculatorOperation,
+    isNumberA: boolean
+  ) {
+    const targetNumber = isNumberA ? this.numberA() : this.numberB();
+    if (targetNumber !== null) {
+      const result = this.calculatorService.evaluateUnaryOperation(
+        targetNumber,
+        operation
+      );
+      const label = this.calculatorService.formatUnaryOperationLabel(
+        operation,
+        targetNumber
+      );
+      if (isNumberA) {
+        this.numberA.set(result);
+        this.lastExpression.set(label);
+      } else {
+        this.numberB.set(result);
+        this.lastExpression.set(
+          `${this.numberA()} ${
+            CalculatorOperationLabels[this.lastOperation()!]
+          } ${label}`
+        );
+      }
+      this.currentExpression.set(`${result}`);
+    }
+  }
+
+  private handleBinaryOperation(operation: CalculatorOperation) {
+    if (this.numberA() !== null) {
+      this.operation.set(operation);
+      this.lastExpression.set(
+        `${this.numberA()} ${CalculatorOperationLabels[operation]}`
+      );
+      this.numberB.set(this.numberA());
+      this.isNumberBPlaceholder.set(true);
+      this.currentExpression.set(`${this.numberB()}`);
+    }
+  }
+
   handleOperationInput(operation: CalculatorOperation) {
     try {
-      //Handle percent as a binary operation - edge case
       if (
         operation === CalculatorOperation.Percent &&
-        this.lastOperation() != CalculatorOperation.Multiply
+        this.lastOperation() !== CalculatorOperation.Multiply
       ) {
-        let base = this.numberA()!;
-        if (this.numberB() === null) base = 0;
+        const base = this.numberB() === null ? 0 : this.numberA()!;
         const percentValue = this.numberB() ?? this.numberA()!;
         const result = this.calculatorService.evaluateBinaryOperation(
           base,
@@ -177,58 +215,20 @@ export class CalculatorComponent {
       }
 
       if (
-        operation === CalculatorOperation.Square ||
-        operation === CalculatorOperation.SquareRoot ||
-        operation === CalculatorOperation.Reciprocal ||
-        operation === CalculatorOperation.Percent ||
-        operation === CalculatorOperation.Negate
+        [
+          CalculatorOperation.Square,
+          CalculatorOperation.SquareRoot,
+          CalculatorOperation.Reciprocal,
+          CalculatorOperation.Percent,
+          CalculatorOperation.Negate,
+        ].includes(operation)
       ) {
-        let isNumberA = this.lastOperation() === null; // if false, it's unary operation on numberB
-        // Handle unary operations
-        let result: number | null = null;
-        if (isNumberA && this.numberA() !== null) {
-          // if below is true, it means percent is being used as a unary operation
-          result = this.calculatorService.evaluateUnaryOperation(
-            this.numberA()!,
-            operation
-          );
-          this.lastExpression.set(
-            `${this.calculatorService.formatUnaryOperationLabel(
-              operation,
-              this.numberA()!
-            )}`
-          );
-          this.numberA.set(result);
-        } else if (this.numberB() !== null) {
-          result = this.calculatorService.evaluateUnaryOperation(
-            this.numberB()!,
-            operation
-          );
-          this.lastExpression.set(
-            `${this.numberA()} ${
-              CalculatorOperationLabels[this.lastOperation()!]
-            } ${this.calculatorService.formatUnaryOperationLabel(
-              operation,
-              this.numberB()!
-            )}`
-          );
-          this.numberB.set(result);
-        }
-        if (result !== null) {
-          this.currentExpression.set(`${result}`);
-        }
+        const isNumberA = this.lastOperation() === null;
+        this.handleUnaryOperation(operation, isNumberA);
       } else {
-        // Handle binary operations
-        if (this.numberA() !== null) {
-          this.operation.set(operation);
-          this.lastExpression.set(
-            `${this.numberA()} ${CalculatorOperationLabels[this.operation()!]}`
-          );
-          this.numberB.set(this.numberA());
-          this.isNumberBPlaceholder.set(true);
-          this.currentExpression.set(`${this.numberB()}`);
-        }
+        this.handleBinaryOperation(operation);
       }
+
       this.lastOperation.set(operation);
     } catch (error: any) {
       this.currentExpression.set(error?.message || 'Error');
