@@ -113,6 +113,7 @@ export class CalculatorComponent {
         case CalculatorButton.Reciprocal:
         case CalculatorButton.Percent:
         case CalculatorButton.Negate:
+        case CalculatorButton.Divide:
           if (button in CalculatorButtonToOperationMap) {
             const operation = CalculatorButtonToOperationMap[button]!;
             this.handleOperationInput(operation);
