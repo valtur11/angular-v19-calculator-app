@@ -46,6 +46,15 @@ export class CalculatorComponent {
   isNumberBPlaceholder = signal<boolean>(false); // Flag to track if numberB is placeholder
   private calculatorService = inject(CalculatorService);
 
+  private updateExpression(input: string, currentValue: string): string {
+    const isDecimal = input === '.';
+    if (isDecimal) {
+      return currentValue === '0' ? '0.' : `${currentValue}.`;
+    } else {
+      return currentValue === '0' ? input : `${currentValue}${input}`;
+    }
+  }
+
   onButtonClick(button: CalculatorButton) {
     try {
       switch (button) {
@@ -57,19 +66,7 @@ export class CalculatorComponent {
           this.clear();
           break;
         case CalculatorButton.ClearEntry:
-          this.lastOperation.set(null);
-          // this.isNumberBPlaceholder.set(false);
-          // the condition statement below handles if result is given already
-          if (this.numberA !== null && this.operation() === null) {
-            this.lastExpression.set(null);
-          }
-          if (this.operation() === null) {
-            this.numberA.set(null);
-            this.currentExpression.set('0');
-          } else {
-            this.numberB.set(null);
-            this.currentExpression.set('0');
-          }
+          this.clearEntry();
           break;
         case CalculatorButton.One:
         case CalculatorButton.Two:
@@ -86,23 +83,7 @@ export class CalculatorComponent {
         case CalculatorButton.Equals:
           this.evaluateExpression();
           break;
-        case CalculatorButton.Subtract:
-          if (this.currentExpression() === '0' && this.operation() === null) {
-            this.numberA.set(0);
-            this.lastExpression.set('0 -');
-            this.operation.set(CalculatorOperation.Subtract);
-            this.isNumberBPlaceholder.set(true);
-            this.numberB.set(0);
-            this.currentExpression.set('0');
-          } else {
-            if (button in CalculatorButtonToOperationMap) {
-              const operation = CalculatorButtonToOperationMap[button]!;
-              this.handleOperationInput(operation);
-            } else {
-              throw new Error('Invalid operation');
-            }
-          }
-          break;
+
         case CalculatorButton.Multiply:
         case CalculatorButton.Add:
         case CalculatorButton.Square:
@@ -111,7 +92,19 @@ export class CalculatorComponent {
         case CalculatorButton.Percent:
         case CalculatorButton.Negate:
         case CalculatorButton.Divide:
-          if (button in CalculatorButtonToOperationMap) {
+        case CalculatorButton.Subtract:
+          if (
+            button === CalculatorButton.Subtract &&
+            this.currentExpression() === '0' &&
+            this.operation() === null
+          ) {
+            this.numberA.set(0);
+            this.lastExpression.set('0 -');
+            this.operation.set(CalculatorOperation.Subtract);
+            this.isNumberBPlaceholder.set(true);
+            this.numberB.set(0);
+            this.currentExpression.set('0');
+          } else if (button in CalculatorButtonToOperationMap) {
             const operation = CalculatorButtonToOperationMap[button]!;
             this.handleOperationInput(operation);
           } else {
@@ -119,75 +112,43 @@ export class CalculatorComponent {
           }
           break;
         case CalculatorButton.Delete:
-          if (this.operation() === null) {
-            if (this.numberA() !== null) {
-              // Remove the last digit or decimal point
-              const currentValue = `${this.numberA()}`;
-              const updatedValue = currentValue.slice(0, -1) || '0';
-              this.numberA.set(parseFloat(updatedValue));
-              this.currentExpression.set(updatedValue);
-            }
-          } else {
-            if (this.numberB() !== null) {
-              // Remove the last digit or decimal point
-              const currentValue = `${this.numberB()}`;
-              const updatedValue = currentValue.slice(0, -1) || '0';
-              this.numberB.set(parseFloat(updatedValue));
-              this.currentExpression.set(updatedValue);
-            }
-          }
+          this.handleDelete();
           break;
         default:
           throw new Error('Invalid button');
       }
-      console.log(
-        '(main view) Button clicked:',
-        CalculatorButtonLabels[button],
-        'Enum:',
-        button
-      );
     } catch (error: any) {
       this.currentExpression.set(error?.message || 'Error');
     }
   }
 
   handleNumberInput(input: string) {
-    const isDecimal = input === '.';
-
     if (this.operation() === null) {
       // Handle numberA
-      const currentValue = this.currentExpression();
-      if (isDecimal) {
-        this.currentExpression.set(
-          currentValue === '0' ? '0.' : `${currentValue}.`
-        );
-      } else {
-        this.currentExpression.set(
-          currentValue === '0' ? input : `${currentValue}${input}`
-        );
-      }
-      this.numberA.set(parseFloat(this.currentExpression()));
+      const updatedValue = this.updateExpression(
+        input,
+        this.currentExpression()
+      );
+      this.currentExpression.set(updatedValue);
+      this.numberA.set(parseFloat(updatedValue));
     } else {
       // Handle numberB
       const currentValue = this.currentExpression();
       if (this.isNumberBPlaceholder()) {
-        this.currentExpression.set(isDecimal ? '0.' : input);
+        this.currentExpression.set(input === '.' ? '0.' : input);
         this.numberB.set(null);
         this.isNumberBPlaceholder.set(false);
       } else {
-        if (isDecimal) {
-          this.currentExpression.set(
-            currentValue === '0' ? '0.' : `${currentValue}.`
-          );
-        } else {
-          this.currentExpression.set(
-            currentValue === '0' ? input : `${currentValue}${input}`
-          );
-        }
+        const updatedValue = this.updateExpression(
+          input,
+          this.currentExpression()
+        );
+        this.currentExpression.set(updatedValue);
       }
       this.numberB.set(parseFloat(this.currentExpression()));
     }
   }
+
   handleOperationInput(operation: CalculatorOperation) {
     try {
       //Handle percent as a binary operation - edge case
@@ -298,6 +259,46 @@ export class CalculatorComponent {
       } catch (error: any) {
         this.currentExpression.set(error?.message || 'Error');
       }
+    }
+  }
+
+  private handleDelete() {
+    if (this.lastExpression() && this.operation() === null) {
+      this.lastExpression.set(null); // Clear lastExpression after evaluation
+      return;
+    }
+    if (this.operation() === null) {
+      if (this.numberA() !== null) {
+        // Remove the last digit or decimal point from numberA
+        const currentValue = `${this.numberA()}`;
+        const updatedValue = currentValue.slice(0, -1) || '0';
+        this.numberA.set(parseFloat(updatedValue));
+        this.currentExpression.set(updatedValue);
+      }
+    } else {
+      if (this.numberB() !== null) {
+        // Remove the last digit or decimal point from numberB
+        const currentValue = `${this.numberB()}`;
+        const updatedValue = currentValue.slice(0, -1) || '0';
+        this.numberB.set(parseFloat(updatedValue));
+        this.currentExpression.set(updatedValue);
+      }
+    }
+  }
+
+  clearEntry() {
+    this.lastOperation.set(null);
+    // this.isNumberBPlaceholder.set(false);
+    // the condition statement below handles if result is given already
+    if (this.numberA !== null && this.operation() === null) {
+      this.lastExpression.set(null);
+    }
+    if (this.operation() === null) {
+      this.numberA.set(null);
+      this.currentExpression.set('0');
+    } else {
+      this.numberB.set(null);
+      this.currentExpression.set('0');
     }
   }
 
