@@ -1,3 +1,11 @@
 <app-wrapper>
-  <app-calculator-display></app-calculator-display>
+  <div>
+    <app-calculator-display
+      [bigDisplayValue]="currentExpression()"
+      [smallDisplayValue]="lastExpression()"
+    ></app-calculator-display>
+    <app-calculator-buttons
+      (buttonClicked)="onButtonClick($event)"
+    ></app-calculator-buttons>
+  </div>
 </app-wrapper>
