@@ -1,0 +1,18 @@
+button {
+  background: var(--background-color);
+  padding-block: var(--spacing-xl);
+  padding-inline: var(--spacing-xl);
+  width: 100%;
+  font-size: var(--font-size-xl);
+  font-family: Arial, Helvetica, sans-serif;
+  box-shadow: var(--input-background);
+  border: none;
+  &:hover {
+    background: var(--input-background);
+    transition: background 0.3s ease;
+  }
+  &:active {
+    background: red;
+    transition: background 0.1s ease;
+  }
+}
