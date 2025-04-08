@@ -24,6 +24,26 @@ export const CalculatorOperationLabels: Record<CalculatorOperation, string> = {
   [CalculatorOperation.Negate]: '±',
 };
 
+// note: this is a utility function to format the label of the operation, not essential to the calculator logic
+export function formatUnaryOperationLabel(
+  operation: CalculatorOperation,
+  value: number
+): string {
+  switch (operation) {
+    case CalculatorOperation.Square:
+      return `square(${value})`;
+    case CalculatorOperation.SquareRoot:
+      return `sqrt(${value})`;
+    case CalculatorOperation.Reciprocal:
+      return `1/(${value})`;
+    // case CalculatorOperation.Percent:
+    //   return `(${value})%`;
+    case CalculatorOperation.Negate:
+      return `negate(${value})`;
+    default:
+      throw new Error('Invalid operation');
+  }
+}
 @Injectable({
   providedIn: 'root',
 })
