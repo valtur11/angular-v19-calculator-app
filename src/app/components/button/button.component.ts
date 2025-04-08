@@ -12,7 +12,7 @@ export class ButtonComponent {
   text = input.required();
   buttonId = input.required<CalculatorButton>();
   onClick = output<CalculatorButton>();
-
+  isPrimary = input(false);
   clickHandler() {
     this.onClick.emit(this.buttonId());
   }

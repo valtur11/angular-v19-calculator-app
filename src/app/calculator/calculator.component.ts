@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { WrapperComponent } from '../components/wrapper/wrapper.component';
 import { CalculatorDisplayComponent } from './calculator-display/calculator-display.component';
-import { CalculatorButonsComponent } from './calculator-buttons/calculator-buttons.component';
+import { CalculatorButtonsComponent } from './calculator-buttons/calculator-buttons.component';
 import {
   CalculatorOperation,
   CalculatorService,
@@ -30,7 +30,7 @@ export const CalculatorButtonToOperationMap: Partial<
   imports: [
     WrapperComponent,
     CalculatorDisplayComponent,
-    CalculatorButonsComponent,
+    CalculatorButtonsComponent,
   ],
   templateUrl: './calculator.component.html',
   styleUrl: './calculator.component.css',

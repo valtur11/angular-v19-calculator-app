@@ -11,7 +11,7 @@ import {
   templateUrl: './calculator-buttons.component.html',
   styleUrl: './calculator-buttons.component.css',
 })
-export class CalculatorButonsComponent {
+export class CalculatorButtonsComponent {
   buttons = Object.values(CalculatorButton).filter(
     (value) => typeof value === 'number'
   ) as CalculatorButton[];
@@ -23,5 +23,8 @@ export class CalculatorButonsComponent {
 
   getButtonLabel(button: CalculatorButton): string {
     return CalculatorButtonLabels[button];
+  }
+  isPrimaryButton(button: CalculatorButton): boolean {
+    return button == CalculatorButton.Equals;
   }
 }

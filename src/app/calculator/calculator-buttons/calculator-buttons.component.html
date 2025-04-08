@@ -4,6 +4,7 @@
     (onClick)="onButtonClick($event)"
     [text]="`${getButtonLabel(button)}`"
     [buttonId]="button"
+    [isPrimary]="isPrimaryButton(button)"
   ></app-button>
   } @empty {
   <div class="empty-button">No buttons available</div>
