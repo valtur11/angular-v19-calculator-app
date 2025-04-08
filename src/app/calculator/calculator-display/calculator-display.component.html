@@ -1,1 +1,4 @@
-<input type="text" [value]="displayValue()" (keyup)="onInput($event)" />
+@if(smallDisplayValue()){
+<p class="small-display">{{ smallDisplayValue() }}</p>
+}
+<p class="big-display">{{ bigDisplayValue() }}</p>
