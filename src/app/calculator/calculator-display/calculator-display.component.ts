@@ -6,6 +6,6 @@ import { Component, input } from '@angular/core';
   styleUrl: './calculator-display.component.css',
 })
 export class CalculatorDisplayComponent {
-  bigDisplayValue = input.required();
-  smallDisplayValue = input(null);
+  bigDisplayValue = input.required<string>();
+  smallDisplayValue = input<string | null>(null);
 }
