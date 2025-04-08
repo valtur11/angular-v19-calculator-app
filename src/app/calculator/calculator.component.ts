@@ -87,10 +87,7 @@ export class CalculatorComponent {
           this.evaluateExpression();
           break;
         case CalculatorButton.Subtract:
-          if (
-            this.operation() === null &&
-            (this.numberB() === null || this.numberB() === 0)
-          ) {
+          if (this.currentExpression() === '0' && this.operation() === null) {
             this.numberA.set(0);
             this.lastExpression.set('0 -');
             this.operation.set(CalculatorOperation.Subtract);
