@@ -6,7 +6,6 @@ import {
   CalculatorOperation,
   CalculatorService,
   CalculatorOperationLabels,
-  formatUnaryOperationLabel,
 } from './services/calculator.service';
 import {
   CalculatorButton,
@@ -125,6 +124,31 @@ export class CalculatorComponent {
   }
 
   handleOperationInput(operation: CalculatorOperation) {
+    //Handle percent as a binary operation - edge case
+    if (
+      operation === CalculatorOperation.Percent &&
+      this.lastOperation() != CalculatorOperation.Multiply
+    ) {
+      let base = this.numberA()!;
+      if (this.numberB() === null) base = 0;
+      const percentValue = this.numberB() ?? this.numberA()!;
+      const result = this.calculatorService.evaluateBinaryOperation(
+        base,
+        percentValue,
+        CalculatorOperation.Percent
+      );
+      this.lastExpression.set(
+        `${base} ${
+          CalculatorOperationLabels[this.lastOperation()!]
+        } ${percentValue}`
+      );
+      this.numberA.set(base);
+      this.numberB.set(result);
+      this.operation.set(this.lastOperation());
+      this.currentExpression.set(`${result}`);
+      return;
+    }
+
     if (
       operation === CalculatorOperation.Square ||
       operation === CalculatorOperation.SquareRoot ||
@@ -134,15 +158,18 @@ export class CalculatorComponent {
     ) {
       let isNumberA = this.lastOperation() === null; // if false, it's unary operation on numberB
       // Handle unary operations
-      //@Todo handle perecentage
       let result: number | null = null;
       if (isNumberA && this.numberA() !== null) {
+        // if below is true, it means percent is being used as a unary operation
         result = this.calculatorService.evaluateUnaryOperation(
           this.numberA()!,
           operation
         );
         this.lastExpression.set(
-          `${formatUnaryOperationLabel(operation, this.numberA()!)}`
+          `${this.calculatorService.formatUnaryOperationLabel(
+            operation,
+            this.numberA()!
+          )}`
         );
         this.numberA.set(result);
       } else if (this.numberB() !== null) {
@@ -153,7 +180,10 @@ export class CalculatorComponent {
         this.lastExpression.set(
           `${this.numberA()} ${
             CalculatorOperationLabels[this.lastOperation()!]
-          } ${formatUnaryOperationLabel(operation, this.numberB()!)}`
+          } ${this.calculatorService.formatUnaryOperationLabel(
+            operation,
+            this.numberB()!
+          )}`
         );
         this.numberB.set(result);
       }
