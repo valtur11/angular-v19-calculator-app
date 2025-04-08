@@ -1,3 +1,7 @@
-<button (click)="clickHandler()" [class.button-primary]="isPrimary()">
+<button
+  class="button"
+  (click)="clickHandler()"
+  [class.button-primary]="isPrimary()"
+>
   {{ text() }}
 </button>
