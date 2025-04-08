@@ -1,0 +1,11 @@
+<div>
+  @for (button of buttons; track button) {
+  <app-button
+    (onClick)="onButtonClick($event)"
+    [text]="`${getButtonLabel(button)}`"
+    [buttonId]="button"
+  ></app-button>
+  } @empty {
+  <div class="empty-button">No buttons available</div>
+  }
+</div>
