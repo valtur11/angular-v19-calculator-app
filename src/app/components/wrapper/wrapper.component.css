@@ -1,4 +1,4 @@
 div {
-  max-width: 1400px;
+  max-width: var(--container-width-xxl);
   margin-inline: auto;
 }
