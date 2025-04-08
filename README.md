@@ -36,8 +36,6 @@ To execute unit tests with the [Karma](https://karma-runner.github.io) test runn
 npm test
 ```
 
-## How the app works
-
 ## How the App Works
 
 ### Structure Decisions
