@@ -48,7 +48,10 @@ export class CalculatorComponent {
 
   onButtonClick(button: CalculatorButton) {
     switch (button) {
-      //@Todo: handle all buttons
+      case CalculatorButton.Decimal:
+        if (this.currentExpression().includes('.')) return; // Prevent multiple decimals
+        this.handleNumberInput('.');
+        break;
       case CalculatorButton.Clear:
         this.clear();
         break;
@@ -101,15 +104,19 @@ export class CalculatorComponent {
       case CalculatorButton.Delete:
         if (this.operation() === null) {
           if (this.numberA() !== null) {
-            //Remove the last digit
-            this.numberA.set(Math.floor(this.numberA()! / 10));
-            this.currentExpression.set(`${this.numberA()}`);
+            // Remove the last digit or decimal point
+            const currentValue = `${this.numberA()}`;
+            const updatedValue = currentValue.slice(0, -1) || '0';
+            this.numberA.set(parseFloat(updatedValue));
+            this.currentExpression.set(updatedValue);
           }
         } else {
           if (this.numberB() !== null) {
-            //Remove the last digit
-            this.numberB.set(Math.floor(this.numberB()! / 10));
-            this.currentExpression.set(`${this.numberB()}`);
+            // Remove the last digit or decimal point
+            const currentValue = `${this.numberB()}`;
+            const updatedValue = currentValue.slice(0, -1) || '0';
+            this.numberB.set(parseFloat(updatedValue));
+            this.currentExpression.set(updatedValue);
           }
         }
         break;
@@ -124,20 +131,42 @@ export class CalculatorComponent {
     );
   }
   handleNumberInput(input: string) {
-    //@Todo handle decimals
+    const isDecimal = input === '.';
+
     if (this.operation() === null) {
-      this.numberA.set(Number(`${this.numberA() ?? ''}${input}`));
-      this.currentExpression.set(`${this.numberA()}`);
+      // Handle numberA
+      const currentValue = this.currentExpression();
+      if (isDecimal) {
+        this.currentExpression.set(
+          currentValue === '0' ? '0.' : `${currentValue}.`
+        );
+      } else {
+        this.currentExpression.set(
+          currentValue === '0' ? input : `${currentValue}${input}`
+        );
+      }
+      this.numberA.set(parseFloat(this.currentExpression()));
     } else {
+      // Handle numberB
+      const currentValue = this.currentExpression();
       if (this.isNumberBPlaceholder()) {
+        this.currentExpression.set(isDecimal ? '0.' : input);
         this.numberB.set(null);
         this.isNumberBPlaceholder.set(false);
+      } else {
+        if (isDecimal) {
+          this.currentExpression.set(
+            currentValue === '0' ? '0.' : `${currentValue}.`
+          );
+        } else {
+          this.currentExpression.set(
+            currentValue === '0' ? input : `${currentValue}${input}`
+          );
+        }
       }
-      this.numberB.set(Number(`${this.numberB() ?? ''}${input}`));
-      this.currentExpression.set(` ${this.numberB()}`);
+      this.numberB.set(parseFloat(this.currentExpression()));
     }
   }
-
   handleOperationInput(operation: CalculatorOperation) {
     //Handle percent as a binary operation - edge case
     if (
