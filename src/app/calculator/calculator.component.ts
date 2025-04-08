@@ -86,9 +86,27 @@ export class CalculatorComponent {
         case CalculatorButton.Equals:
           this.evaluateExpression();
           break;
-        case CalculatorButton.Divide:
-        case CalculatorButton.Multiply:
         case CalculatorButton.Subtract:
+          if (
+            this.operation() === null &&
+            (this.numberB() === null || this.numberB() === 0)
+          ) {
+            this.numberA.set(0);
+            this.lastExpression.set('0 -');
+            this.operation.set(CalculatorOperation.Subtract);
+            this.isNumberBPlaceholder.set(true);
+            this.numberB.set(0);
+            this.currentExpression.set('0');
+          } else {
+            if (button in CalculatorButtonToOperationMap) {
+              const operation = CalculatorButtonToOperationMap[button]!;
+              this.handleOperationInput(operation);
+            } else {
+              throw new Error('Invalid operation');
+            }
+          }
+          break;
+        case CalculatorButton.Multiply:
         case CalculatorButton.Add:
         case CalculatorButton.Square:
         case CalculatorButton.SquareRoot:
